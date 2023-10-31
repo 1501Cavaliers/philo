@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:24:12 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/30 15:55:05 by flavian          ###   ########.fr       */
+/*   Updated: 2023/10/31 13:31:46 by fserpe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_atoi(char *nptr)
+long	int	ft_long_atoi(char *nptr)
 {
 	int	i;
-	int	sign;
-	int	nb;
+	long	int	sign;
+	long	int	nb;
 
 	i = 0;
 	sign = 1;
@@ -37,6 +37,17 @@ int	ft_atoi(char *nptr)
 	}
 	return (sign * nb);
 }
+
+// int	check_int_max(char *str)
+// {
+// 	if (!str)
+// 		return (0);
+// 	if (ft_strlen(str) > 9)
+// 		return (0);
+// 	if (ft_strncmp(str, "2147483647", ft_strlen(str)))
+// 		return (0);
+// 	return (1);
+// }
 
 int	check_if_num(char *str)
 {
@@ -69,7 +80,7 @@ int	parsing(t_data *data, char **av)
 	{
 		if (!check_if_num(av[i]))
 			return (0);
-		tab[i - 1] = ft_atoi(av[i]);
+		tab[i - 1] = ft_long_atoi(av[i]);
 		i++;
 	}
 	if (i < 6)

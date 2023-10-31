@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 13:53:53 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/30 15:57:54 by flavian          ###   ########.fr       */
+/*   Updated: 2023/10/31 14:50:23 by fserpe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,11 @@ int	init_mutex(t_data *data)
 	return (0);
 }
 
-void	print_info(t_philo philo)
+long	int	gettime()
 {
-	printf("Philo number %d = \n", philo.name);
-	printf("start_time %d\n", philo.start_time);
-	printf("is ended %d\n", philo.is_ended);
-	printf("is eating %d\n=====================\n", philo.is_eating);
-
+	struct timeval x;
+	gettimeofday(&x, NULL);
+	return (x.tv_usec * 1e-3);
 }
 
 t_philo	*create_philo(t_data *data, int name)
@@ -58,9 +56,10 @@ t_philo	*create_philo(t_data *data, int name)
 	if (!philo)
 		return (NULL);
 	philo->name = name;
-	philo->start_time = 0;
+	philo->start_time = gettime();
 	philo->is_ended = 0;
-	philo->is_eating = 0;
+	philo->status = 0;
+	philo->ate = 0;
 	philo->data = data;
 	if (philo->name == 1)
 	{
@@ -69,10 +68,10 @@ t_philo	*create_philo(t_data *data, int name)
 	}
 	else
 	{
-		philo->r_fork = &data->forks[name - 1];
-		philo->l_fork = &data->forks[name - 2];
+		philo->r_fork = &data->forks[name - 2];
+		philo->l_fork = &data->forks[name - 1];	
 	}
-	philo->philock = data->philock[name - 1];
+	// philo->philock = data->philock[name - 1];
 	return (philo);
 }
 
@@ -84,12 +83,11 @@ int	init_philo(t_data *data)
 	i = 1;
 	philo = create_philo(data, i);
 	data->philo = philo;
-	print_info(*philo);
 	while (++i <= data->nb_philo)
 	{
 		philo->next = create_philo(data, i);
 		philo = philo->next;
-		print_info(*philo);
 	}
-	return (0);
+	philo->next = NULL;
+	return (1);
 }

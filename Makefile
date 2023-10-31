@@ -5,6 +5,8 @@ MY_SOURCES = main.c \
 		utils.c \
 		parsing.c \
 		init.c \
+		thread.c \
+		end.c \
 
 MY_OBJECTS = $(MY_SOURCES:.c=.o)
 
