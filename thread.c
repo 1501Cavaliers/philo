@@ -3,34 +3,55 @@
 /*                                                        :::      ::::::::   */
 /*   thread.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
+/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/31 11:41:15 by fserpe            #+#    #+#             */
-/*   Updated: 2023/10/31 14:48:09 by fserpe           ###   ########.fr       */
+/*   Updated: 2023/11/01 12:37:15 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	thinking(t_philo *philo)
+int	check_death(t_philo *philo)
 {
-	philo->status = 3;
-	say(philo, "is thinking");
+	long	int	goal;
+	long	int	actual;
+
+	goal = philo->data->tt_die;
+	actual = gettime() - philo->start_time;
+	if (actual >= goal)
+	{
+		philo->is_ended = 1;
+		return (0);
+	}
+	return (1);
 }
 
-void	sleeping(t_philo *philo)
+int	thinking(t_philo *philo)
 {
-	philo->status = 2;
+	if (!check_death(philo))
+		return (0);
+	usleep(100);
+	say(philo, gettime() - philo->start_time, "is thinking");
+	return (1);
+}
+
+int	sleeping(t_philo *philo)
+{
+	if (!check_death(philo))
+		return (0);
 	usleep(philo->data->tt_sleep * 1e-3);
-	say(philo, "is sleeping");
+	say(philo, gettime() - philo->start_time, "is sleeping");
+	return (1);
 }
 
-void	eating(t_philo *philo)
+int	eating(t_philo *philo)
 {
-	philo->status = 1;
+	if (!check_death(philo))
+		return (0);
 	usleep(philo->data->tt_eat * 1e-3);
-	say(philo, "is eating");
-	philo->ate++;
+	say(philo, gettime() - philo->start_time, "is eating");
+	return (1);
 }
 
 void	*routine(void *arg)
@@ -40,18 +61,18 @@ void	*routine(void *arg)
 	philo = (t_philo *) arg;
 	if (philo->data->nb_philo == 1)
 	{
-		say(philo, "Has taken a fork");
+		say(philo, gettime() - philo->start_time, "has taken a fork");
 		philo->is_ended = 1;
 	}
-	while (ft_end(philo) && philo->data->nb_eat > 0 && philo->ate < philo->data->nb_eat)
+	while (ft_end(philo) && philo->ate != philo->data->nb_eat)
 	{
-		say(philo, "Has taken a fork");
-		pthread_mutex_lock(philo->l_fork);
-		say(philo, "Has taken a fork");
-		pthread_mutex_lock(philo->r_fork);
+		say(philo, gettime() - philo->start_time, "has taken a fork");
+		locker(philo->l_fork, philo->is_ended);
+		say(philo, gettime() - philo->start_time, "has taken a fork");
+		locker(philo->r_fork, philo->is_ended);
 		eating(philo);
-		pthread_mutex_unlock(philo->l_fork);
-		pthread_mutex_unlock(philo->r_fork);
+		unlocker(philo->l_fork, philo->is_ended);
+		unlocker(philo->r_fork, philo->is_ended);
 		sleeping(philo);
 		thinking(philo);
 	}

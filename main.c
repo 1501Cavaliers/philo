@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
+/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:16:24 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/31 14:50:12 by fserpe           ###   ########.fr       */
+/*   Updated: 2023/11/01 12:24:55 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main(int ac, char **av)
 	if (init_mutex(data))
 		return (ft_error("Mutex init error", 2));
 	if (init_philo(data))
-		return (ft_error("Philo init error", 3))
+		return (ft_error("Philo init error", 3));
 	if (init_thread(data))
 		return (ft_error("Thread init error", 4));
 }

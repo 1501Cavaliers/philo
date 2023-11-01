@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
+/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 13:53:53 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/31 14:50:23 by fserpe           ###   ########.fr       */
+/*   Updated: 2023/11/01 12:33:04 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ long	int	gettime()
 {
 	struct timeval x;
 	gettimeofday(&x, NULL);
-	return (x.tv_usec * 1e-3);
+	return ((long int)x.tv_sec * 1000 + (long int)x.tv_usec / 1000);
 }
 
 t_philo	*create_philo(t_data *data, int name)
@@ -58,7 +58,6 @@ t_philo	*create_philo(t_data *data, int name)
 	philo->name = name;
 	philo->start_time = gettime();
 	philo->is_ended = 0;
-	philo->status = 0;
 	philo->ate = 0;
 	philo->data = data;
 	if (philo->name == 1)
@@ -89,5 +88,5 @@ int	init_philo(t_data *data)
 		philo = philo->next;
 	}
 	philo->next = NULL;
-	return (1);
+	return (0);
 }

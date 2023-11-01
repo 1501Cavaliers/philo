@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
+/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:10:38 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/31 14:50:25 by fserpe           ###   ########.fr       */
+/*   Updated: 2023/11/01 12:28:24 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ typedef struct s_philo
 	long	int		start_time;
 	int				ate;
 	int				is_ended;
-	int				status;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	philock;
@@ -67,8 +66,13 @@ int		ft_strlen(char *str);
 
 int	ft_strncmp(char *s1, char *s2, int len);
 
-void	say(t_philo *philo, char *msg);
+void	say(t_philo *philo, long int time, char *msg);
 
+long	int	gettime();
+
+int	locker(pthread_mutex_t *mutex, int check);
+
+int	unlocker(pthread_mutex_t *mutex, int check);
 
 int	ft_end(t_philo *philo);
 
