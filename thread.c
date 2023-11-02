@@ -6,23 +6,29 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/31 11:41:15 by fserpe            #+#    #+#             */
-/*   Updated: 2023/11/02 14:20:49 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/02 17:12:07 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	check_death(t_philo *philo)
+int	death_time(t_philo *philo)
 {
+	long	int	ttd;
 	long	int	goal;
 	long	int	actual;
 
-	goal = philo->data->tt_die;
+	ttd = philo->data->tt_die;
+	goal = ttd + (philo->ate * ttd);
 	actual = gettime() - philo->start_time;
 	if (actual >= goal)
 	{
-		philo->is_dead = 1;
-		ft_end(philo);
+		philo->dying = 1;
+		locker(&philo->data->death, 0);
+		philo->data->is_dead = 1;
+		unlocker(&philo->data->death, 0);
+
+		say(philo, gettime() - philo->start_time, "is dead");
 		return (0);
 	}
 	return (1);
@@ -30,31 +36,40 @@ int	check_death(t_philo *philo)
 
 int	thinking(t_philo *philo)
 {
-	if (philo->is_dead && !check_death(philo))
+	if (philo->data->is_dead == 1)
 		return (0);
-	usleep(100);
+	usleep(10);
 	say(philo, gettime() - philo->start_time, "is thinking");
 	return (1);
 }
 
 int	sleeping(t_philo *philo)
 {
-	if (philo->is_dead && !check_death(philo))
+	long	int	time;
+
+	if (philo->data->is_dead == 1)
 		return (0);
-	usleep(philo->data->tt_sleep * 1e-3);
+	time = gettime() + philo->data->tt_sleep;
+	while (gettime() < time)
+		usleep(10);
 	say(philo, gettime() - philo->start_time, "is sleeping");
 	return (1);
 }
 
 int	eating(t_philo *philo)
 {
-	if (philo->is_dead && !check_death(philo))
+	long	int	time;
+
+
+	if (philo->data->is_dead == 1)
 		return (0);
-	usleep(philo->data->tt_eat * 1e-3);
+	time = gettime() + philo->data->tt_sleep;
+	while (gettime() < time)
+		usleep(10);
 	philo->ate++;
 	say(philo, gettime() - philo->start_time, "is eating");
-	unlocker(philo->l_fork, philo->is_dead);
-	unlocker(philo->r_fork, philo->is_dead);
+	unlocker(philo->l_fork, philo->dying);
+	unlocker(philo->r_fork, philo->dying);
 	return (1);
 }
 
@@ -66,18 +81,20 @@ void	*routine(void *arg)
 	if (philo->data->nb_philo == 1)
 	{
 		say(philo, gettime() - philo->start_time, "has taken a fork");
-		philo->is_dead = 1;
+		philo->dying = 1;
 	}
-	while (!philo->is_dead && check_death(philo) && philo->ate != philo->data->nb_eat)
+	while (check_death(philo) == 1 && philo->ate != philo->data->nb_eat)
 	{
-		locker(philo->l_fork, philo->is_dead);
+		locker(philo->l_fork, philo->dying);
 		say(philo, gettime() - philo->start_time, "has taken a fork");
-		locker(philo->r_fork, philo->is_dead);
+		locker(philo->r_fork, philo->dying);
 		say(philo, gettime() - philo->start_time, "has taken a fork");
-		eating(philo);
-		if (philo->ate > 0)
-			sleeping(philo);
-		thinking(philo);
+		if (!eating(philo))
+			break ;
+		if (!sleeping(philo))
+			break ;
+		if (thinking(philo))
+			break ;
 	}
 	return (NULL);
 }
@@ -89,19 +106,21 @@ int	init_thread(t_data *data)
 
 	philo = data->philo;
 	i = 0;
-	while (i < data->nb_philo)
+	while (philo && i < data->nb_philo)
 	{
-		if (pthread_create(&philo->id, NULL, &routine, philo) != 0)
-			return (1);
+			if (pthread_create(&philo->id, NULL, &routine, philo) != 0)
+				return (1);
 		philo = philo->next;
 		i++;
 	}
 	philo = data->philo;
-	while (philo->next)
+	i = 0;
+	while (philo && i < data->nb_philo)
 	{
-		if (pthread_join(philo->id, NULL) != 0)
-			return (2);
+			if (pthread_join(philo->id, NULL) != 0)
+				return (2);
 		philo = philo->next;
+		i++;
 	}
 	return (0);
 }

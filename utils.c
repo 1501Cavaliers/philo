@@ -6,11 +6,27 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:16:39 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/01 12:23:48 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/02 17:09:40 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+int		check_death(t_philo *philo)
+{
+	// printf("ICI\n");
+	if (!death_time(philo))
+		return (0);
+	if (philo->dying == 1)
+	{
+		say(philo, gettime() - philo->start_time, "is dead");
+		pthread_mutex_lock(&philo->data->death);
+		philo->data->is_dead = 1;
+		pthread_mutex_unlock(&philo->data->death);
+		return (0);
+	}
+	return (1);
+}
 
 void	say(t_philo *philo, long int time, char *msg)
 {

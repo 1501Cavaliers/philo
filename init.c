@@ -6,7 +6,7 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 13:53:53 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/01 12:33:04 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/02 17:20:25 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ long	int	gettime()
 	return ((long int)x.tv_sec * 1000 + (long int)x.tv_usec / 1000);
 }
 
-t_philo	*create_philo(t_data *data, int name)
+t_philo	*create_philo(t_data *data, int name, int time)
 {
 	t_philo	*philo;
 
@@ -56,8 +56,8 @@ t_philo	*create_philo(t_data *data, int name)
 	if (!philo)
 		return (NULL);
 	philo->name = name;
-	philo->start_time = gettime();
-	philo->is_ended = 0;
+	philo->start_time = time;
+	philo->dying = 0;
 	philo->ate = 0;
 	philo->data = data;
 	if (philo->name == 1)
@@ -70,21 +70,23 @@ t_philo	*create_philo(t_data *data, int name)
 		philo->r_fork = &data->forks[name - 2];
 		philo->l_fork = &data->forks[name - 1];	
 	}
-	// philo->philock = data->philock[name - 1];
+	philo->philock = data->philock[name - 1];
 	return (philo);
 }
 
 int	init_philo(t_data *data)
 {
 	t_philo *philo;
+	long int time;
 	int		i;
 
 	i = 1;
-	philo = create_philo(data, i);
+	time = gettime();
+	philo = create_philo(data, i, time);
 	data->philo = philo;
 	while (++i <= data->nb_philo)
 	{
-		philo->next = create_philo(data, i);
+		philo->next = create_philo(data, i, time);
 		philo = philo->next;
 	}
 	philo->next = NULL;

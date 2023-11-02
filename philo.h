@@ -6,7 +6,7 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:10:38 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/02 14:20:35 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/02 17:09:25 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef struct s_philo
 	int				name;
 	long	int		start_time;
 	int				ate;
-	int				is_dead;
+	int				dying;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	philock;
@@ -73,6 +73,8 @@ long	int	gettime();
 int	locker(pthread_mutex_t *mutex, int check);
 
 int	unlocker(pthread_mutex_t *mutex, int check);
+int		check_death(t_philo *philo);
+int	death_time(t_philo *philo);
 
 int	ft_end(t_philo *philo);
 
