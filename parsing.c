@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
+/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:24:12 by flavian           #+#    #+#             */
-/*   Updated: 2023/10/31 13:31:46 by fserpe           ###   ########.fr       */
+/*   Updated: 2023/11/09 15:04:49 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,13 @@
 
 long	int	ft_long_atoi(char *nptr)
 {
-	int	i;
+	int			i;
 	long	int	sign;
 	long	int	nb;
 
 	i = 0;
 	sign = 1;
 	nb = 0;
-	while ((nptr[i] >= 9 && nptr[i] <= 13) || nptr[i] == ' ')
-		++i;
-	if (nptr[i] == '+' || nptr[i] == '-')
-	{
-		if (nptr[i] == '-')
-			sign *= -1;
-		++i;
-	}
 	while (nptr[i] >= '0' && nptr[i] <= '9')
 	{
 		nb *= 10;
@@ -38,16 +30,33 @@ long	int	ft_long_atoi(char *nptr)
 	return (sign * nb);
 }
 
-// int	check_int_max(char *str)
-// {
-// 	if (!str)
-// 		return (0);
-// 	if (ft_strlen(str) > 9)
-// 		return (0);
-// 	if (ft_strncmp(str, "2147483647", ft_strlen(str)))
-// 		return (0);
-// 	return (1);
-// }
+int	ft_check_int(int ac, char **av)
+{
+	unsigned long long	tmp;
+
+	if (ac == 6)
+	{
+		if (ft_strlen(av[5]) > 10)
+			return (0);
+		tmp = ft_long_atoi(av[5]);
+		if (tmp > __INT_MAX__)
+			return (0);
+		ac--;
+	}
+	if (ft_strlen(av[1]) > 10)
+		return (0);
+	tmp = ft_long_atoi(av[1]);
+	if (tmp > __INT_MAX__)
+		return (0);
+	ac--;
+	while (ac > 1)
+	{
+		if (ft_strlen(av[ac]) > 9)
+			return (0);
+		ac--;
+	}
+	return (1);
+}
 
 int	check_if_num(char *str)
 {
@@ -56,8 +65,6 @@ int	check_if_num(char *str)
 	if (!str)
 		return (0);
 	i = 0;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == ' ' || str[i] == '+' || str[i] == '-')
-		++i;
 	while (str[i])
 	{
 		if (str[i] < 48 || str[i] > 57)
@@ -70,12 +77,17 @@ int	check_if_num(char *str)
 		return (0);
 }
 
-int	parsing(t_data *data, char **av)
+int	parsing(t_data *data, int ac, char **av)
 {
 	int	tab[5];
 	int	i;
 
 	i = 1;
+	if (!ft_check_int(ac, av))
+	{
+		printf("error int overflow\n");
+		return (0);
+	}
 	while (av[i])
 	{
 		if (!check_if_num(av[i]))
@@ -92,6 +104,5 @@ int	parsing(t_data *data, char **av)
 	data->nb_eat = tab[4];
 	data->is_dead = 0;
 	data->philo = NULL;
-	// printf("nb of philo = %d\ntime to die = %d\ntime to eat = %d\ntime to sleep = %d\nnb of eat = %d\n", data->nb_philo, data->tt_die, data->tt_eat, data->tt_sleep, data->nb_eat);
 	return (1);
 }

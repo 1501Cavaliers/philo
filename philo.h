@@ -6,7 +6,7 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:10:38 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/02 17:09:25 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/09 19:19:38 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,10 @@ typedef struct s_philo
 	int				dying;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	philock;
+	int				*status_left;
+	int				*status_right;
+	pthread_mutex_t	*r_status;
+	pthread_mutex_t	*l_status;
 	struct s_philo	*next;
 }		t_philo;
 
@@ -46,36 +49,35 @@ typedef struct s_data
 	long	int		tt_sleep;
 	long	int		nb_eat;
 	int				is_dead;
+	int				*v_status;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	*philock;
-	pthread_mutex_t	death;
 	pthread_mutex_t	write;
+	pthread_mutex_t	death;
+	pthread_mutex_t	*status;
 }		t_data;
 
-int		parsing(t_data *data, char **av);
+int			parsing(t_data *data, int ac, char **av);
 
-int		ft_error(char *msg, int i);
+int			ft_error(char *msg, int i);
 
-int		init_mutex(t_data *data);
+int			init_mutex(t_data *data);
 
-int	init_philo(t_data *data);
+int			init_philo(t_data *data);
 
-int		init_thread(t_data *data);
+int			init_thread(t_data *data);
 
-int		ft_strlen(char *str);
+int			ft_strlen(char *str);
 
-int	ft_strncmp(char *s1, char *s2, int len);
-
-void	say(t_philo *philo, long int time, char *msg);
+long int	say(t_philo *philo, long int death_time, char *msg);
 
 long	int	gettime();
 
-int	locker(pthread_mutex_t *mutex, int check);
+int			check_death(t_philo *philo, long int curent, long int death);
 
-int	unlocker(pthread_mutex_t *mutex, int check);
-int		check_death(t_philo *philo);
-int	death_time(t_philo *philo);
+long int	my_sleep(long int death_time, t_philo *philo, long int u_sec);
 
-int	ft_end(t_philo *philo);
+long	int	curenttime(long int start);
+
+int			ft_end(t_philo *philo);
 
 #endif
