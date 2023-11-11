@@ -6,7 +6,7 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:24:12 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/09 15:04:49 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/11 18:37:34 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,21 @@ int	check_if_num(char *str)
 		return (0);
 }
 
+void	init_data(t_data *data, int tab[5])
+{
+	data->nb_philo = tab[0];
+	if (data->nb_philo <= 0)
+		return ;
+	data->tt_die = tab[1];
+	data->tt_eat = tab[2];
+	data->tt_sleep = tab[3];
+	if (data->tt_sleep == 0)
+		data->tt_sleep = 1;
+	data->nb_eat = tab[4];
+	data->is_dead = 0;
+	data->philo = NULL;
+}
+
 int	parsing(t_data *data, int ac, char **av)
 {
 	int	tab[5];
@@ -97,12 +112,6 @@ int	parsing(t_data *data, int ac, char **av)
 	}
 	if (i < 6)
 		tab[4] = -1;
-	data->nb_philo = tab[0];
-	data->tt_die = tab[1];
-	data->tt_eat = tab[2];
-	data->tt_sleep = tab[3];
-	data->nb_eat = tab[4];
-	data->is_dead = 0;
-	data->philo = NULL;
+	init_data(data, tab);
 	return (1);
 }

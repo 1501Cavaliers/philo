@@ -6,71 +6,51 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:16:39 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/09 20:25:51 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/11 18:55:49 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+long	int	gettime()
+{
+	struct timeval x;
+	gettimeofday(&x, NULL);
+	return ((long int)x.tv_sec * 1000 + (long int)x.tv_usec / 1000);
+}
 
 long	int	curenttime(long int start)
 {
 	return (gettime() - start);
 }
 
-int		check_death(t_philo *philo, long int curent, long int death)
+int	my_sleep(t_philo *philo, long int tt_sleep)
 {
-	pthread_mutex_lock(&philo->data->death);
-	if (philo->data->is_dead == 1)
-	{
-		pthread_mutex_unlock(&philo->data->death);
-		return (1);
-	}
-	
-	if (death < curent)
-	{
-		printf("%ld philo %d died\n", curenttime(philo->start_time), philo->name);
-		// pthread_mutex_unlock(&philo->data->write);
-		// pthread_mutex_lock(&philo->data->death);
-		philo->data->is_dead = 1;
-		pthread_mutex_unlock(&philo->data->death);
-		return (1);
-	}
-	pthread_mutex_unlock(&philo->data->death);
-	// pthread_mutex_unlock(&philo->data->death);
-	return (0);
-}
+	long int wake_up;
 
-long int	my_sleep(long int death_time, t_philo *philo, long int u_sec)
-{
-	// pthread_mutex_lock(&philo->data->death);
-	if (check_death(philo, curenttime(philo->start_time), death_time))
-		return (-1);
-	// while (u_sec)
-	long int wake_up = curenttime(philo->start_time) + u_sec;
+	if (check_death(philo))
+		return (0);
+	wake_up = curenttime(philo->start_time) + tt_sleep;
 	while(wake_up > curenttime(philo->start_time))
 	{
-		// printf("i am %d\n", philo->name);
 		usleep(1000);
-		// pthread_mutex_lock(&philo->data->death);
-		if (check_death(philo, curenttime(philo->start_time), death_time))
-			return (-1);
-		u_sec--;
+		if (check_death(philo))
+			return (0);
 	}
-	return (death_time);
+	return (1);
 }
 
-long int	say(t_philo *philo, long int death_time, char *g)
+int	say(t_philo *philo, char *g, int nb_fork)
 {
-	// pthread_mutex_lock(&philo->data->death);
-	if (check_death(philo, curenttime(philo->start_time), death_time))
-		return (-1);
+	(void) nb_fork;
+	// printf("SAY\n");
+	if (check_death(philo))
+		return (0);
 	pthread_mutex_lock(&philo->data->write);
 	printf("%ld philo %d %s\n", curenttime(philo->start_time), philo->name, g);
 	pthread_mutex_unlock(&philo->data->write);
-	return (death_time);
+	return (1);
 }
-
-
 
 int	ft_strlen(char *str)
 {

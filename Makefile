@@ -5,8 +5,9 @@ MY_SOURCES = main.c \
 		utils.c \
 		parsing.c \
 		init.c \
-		thread.c \
+		dinner.c \
 		end.c \
+		create_threads.c \
 
 MY_OBJECTS = $(MY_SOURCES:.c=.o)
 
@@ -25,3 +26,5 @@ fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
+
+c: all clean

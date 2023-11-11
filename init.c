@@ -6,38 +6,21 @@
 /*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 13:53:53 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/09 19:21:05 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/11 18:52:41 by flavian          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	init_mutex(t_data *data)
+int	init_mutex_data_pt2(t_data *data, int i)
 {
-	int	i;
-
-	data->v_status = malloc(sizeof(int) * data->nb_philo);
-	if (!data->v_status)
-		return (1);
-	i = 0;
-	while (i < data->nb_philo)
-		data->v_status[i++] = 0;
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
-	if (!data->forks)
+	data->philock = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
+	if (!data->philock)
 		return (1);
 	i = 0;
 	while (i < data->nb_philo)
 	{
-		if (pthread_mutex_init(&data->forks[i++], NULL) != 0)
-			return (2);
-	}
-	data->status = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
-	if (!data->status)
-		return (1);
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		if (pthread_mutex_init(&data->status[i++], NULL) != 0)
+		if (pthread_mutex_init(&data->philock[i++], NULL) != 0)
 			return (2);
 	}
 	if (pthread_mutex_init(&data->write, NULL) != 0)
@@ -47,13 +30,38 @@ int	init_mutex(t_data *data)
 	return (0);
 }
 
-long	int	gettime()
+int	init_mutex_data_pt1(t_data *data)
 {
-	struct timeval x;
-	gettimeofday(&x, NULL);
-	return ((long int)x.tv_sec * 1000 + (long int)x.tv_usec / 1000);
+	int	i;
+
+	i = 0;
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_philo);
+	if (!data->forks)
+		return (1);
+	while (i < data->nb_philo)
+	{
+		if (pthread_mutex_init(&data->forks[i++], NULL) != 0)
+			return (2);
+	}
+	init_mutex_data_pt2(data, i);
+	return (0);
 }
 
+void	init_mutex_philo(t_data *data, t_philo *philo)
+{
+	if (philo->name == 1)
+	{
+		philo->r_fork = &data->forks[data->nb_philo - 1];
+		philo->l_fork = &data->forks[philo->name - 1];
+	}
+	if (philo->name != 1)
+	{
+		philo->r_fork = &data->forks[philo->name - 2];
+		philo->l_fork = &data->forks[philo->name - 1];
+	}
+
+	philo->philock = data->philock[philo->name - 1];
+}
 
 t_philo	*create_philo(t_data *data, int name, long int time)
 {
@@ -64,27 +72,11 @@ t_philo	*create_philo(t_data *data, int name, long int time)
 		return (NULL);
 	philo->name = name;
 	philo->start_time = time;
-	philo->dying = 0;
+	philo->death_time = data->tt_die;
+	philo->is_dead = &data->is_dead;
 	philo->ate = 0;
 	philo->data = data;
-	if (philo->name == 1)
-	{
-		philo->r_fork = &data->forks[name - 1];
-		philo->l_fork = &data->forks[data->nb_philo - 1];
-		philo->r_status = &data->status[name - 1];
-		philo->l_status = &data->status[data->nb_philo - 1];
-		philo->status_right = &data->v_status[name - 1];
-		philo->status_left = &data->v_status[data->nb_philo - 1];
-	}
-	else
-	{
-		philo->r_fork = &data->forks[name - 2];
-		philo->l_fork = &data->forks[name - 1];
-		philo->r_status = &data->status[name - 2];
-		philo->l_status = &data->status[name - 1];
-		philo->status_right = &data->v_status[name - 2];
-		philo->status_left = &data->v_status[name - 1];
-	}
+	init_mutex_philo(data, philo);
 	return (philo);
 }
 
@@ -103,6 +95,7 @@ int	init_philo(t_data *data)
 		philo->next = create_philo(data, i, time);
 		philo = philo->next;
 	}
-	philo->next = NULL;
+
+	philo->next = data->philo;
 	return (0);
 }
