@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:24:12 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/11 18:37:34 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/12 10:49:16 by fserpe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 long	int	ft_long_atoi(char *nptr)
 {
 	int			i;
-	long	int	sign;
-	long	int	nb;
+	long int	sign;
+	long int	nb;
 
 	i = 0;
 	sign = 1;
@@ -77,19 +77,24 @@ int	check_if_num(char *str)
 		return (0);
 }
 
-void	init_data(t_data *data, int tab[5])
+int	init_data(t_data *data, int tab[5])
 {
 	data->nb_philo = tab[0];
 	if (data->nb_philo <= 0)
-		return ;
+		return (0);
 	data->tt_die = tab[1];
+	if (data->tt_die == 0)
+		return (0);
 	data->tt_eat = tab[2];
+	if (data->tt_eat == 0)
+		return (0);
 	data->tt_sleep = tab[3];
 	if (data->tt_sleep == 0)
-		data->tt_sleep = 1;
+		return (0);
 	data->nb_eat = tab[4];
 	data->is_dead = 0;
 	data->philo = NULL;
+	return (1);
 }
 
 int	parsing(t_data *data, int ac, char **av)
@@ -112,6 +117,7 @@ int	parsing(t_data *data, int ac, char **av)
 	}
 	if (i < 6)
 		tab[4] = -1;
-	init_data(data, tab);
+	if (!init_data(data, tab))
+		return (0);
 	return (1);
 }

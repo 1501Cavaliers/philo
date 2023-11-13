@@ -3,47 +3,47 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flavian <flavian@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fserpe <fserpe@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 12:16:24 by flavian           #+#    #+#             */
-/*   Updated: 2023/11/11 18:56:20 by flavian          ###   ########.fr       */
+/*   Updated: 2023/11/12 13:51:16 by fserpe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	destroy_mutex(t_data *data)
+void	destroy_mutex(t_data *data, int val)
 {
 	int	i;
+	int	err;
 
 	i = 0;
-	while (i < data->nb_philo)
+	err = 0;
+	if (val == 0)
+		val = 4;
+	if (val < 0)
+		val = -val;
+	if (err < val)
 	{
-		if (pthread_mutex_destroy(&data->forks[i++]) != 0)
-			return ;
-		i++;
+		while (i < data->nb_philo && &data->forks[i])
+		{
+			if (pthread_mutex_destroy(&data->forks[i++]) != 0)
+				return ;
+			i++;
+		}
+		free(data->forks);
+		err++;
 	}
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		if (pthread_mutex_destroy(&data->philock[i++]) != 0)
-			return ;
-		i++;
-	}
-	if (pthread_mutex_destroy(&data->write) != 0)
-		return ;
-	if (pthread_mutex_destroy(&data->death) != 0)
-		return ;
+	destroy_mutex_2(data, val, err, 0);
 }
 
 void	free_philo(t_data *data)
 {
-	int	i;
-	t_philo *philo;
+	int		i;
+	t_philo	*philo;
 	t_philo	*tmp;
-	
-	i = 1;
 
+	i = 1;
 	philo = data->philo;
 	if (data->nb_philo == 1)
 		free(philo);
@@ -59,13 +59,13 @@ void	free_philo(t_data *data)
 	}
 }
 
-void	free_all(t_data *data)
+int	free_all(t_data *data, int val)
 {
-	destroy_mutex(data);
-	free_philo(data);
-	free(data->forks);
-	free(data->philock);
+	destroy_mutex(data, val);
+	if (data->philo != NULL)
+		free_philo(data);
 	free(data);
+	return (0);
 }
 
 int	ft_error(char *msg, int i)
@@ -77,6 +77,7 @@ int	ft_error(char *msg, int i)
 int	main(int ac, char **av)
 {
 	t_data	*data;
+	int		val;
 
 	if (ac < 5 || ac > 6)
 		return (ft_error("Wrong number of arg", 0));
@@ -85,13 +86,19 @@ int	main(int ac, char **av)
 	if (!data)
 		return (0);
 	if (!parsing(data, ac, av))
+	{
+		free(data);
 		return (ft_error("Parsing error", 1));
-	if (init_mutex_data_pt1(data))
+	}
+	val = init_mutex_data_pt1(data);
+	if (val != 0)
+	{
+		free_all(data, val);
 		return (ft_error("Mutex init error", 2));
-	if (init_philo(data))
+	}
+	if (check_init_philo(data, val))
 		return (ft_error("Philo init error", 3));
-	if (init_thread(data))
+	if (create_thread(data))
 		return (ft_error("Thread init error", 4));
-	free_all(data);
-	return (1);
+	return (free_all(data, 0));
 }
